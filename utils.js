@@ -5,6 +5,8 @@ const { makeCall } = require('./makeCall');
 
 const pincode = process.env.PINCODE;
 
+let lastCallLog = null;
+
 const getSlotsForDate = async date => {
   let req = {
     method: 'get',
@@ -17,13 +19,26 @@ const getSlotsForDate = async date => {
   sessions = sessions.filter(
     session => session.min_age_limit === 18 && session.available_capacity > 0
   );
+  console.log('call log: ' + lastCallLog);
   if (sessions.length > 0) {
     console.log(`
-
-                slot available
-    
+    -------------------------------------------
+                  ****************
+                   slot available
+                  ****************
+    -------------------------------------------
     `);
-    notifyMe();
+    if (lastCallLog != null) {
+      const l = moment(lastCallLog);
+      const r = moment(Date.now());
+      if (r.diff(l, 'minute', true) >= 5) {
+        notifyMe();
+        lastCallLog = Date.now();
+      }
+    } else {
+      notifyMe();
+      lastCallLog = Date.now();
+    }
   } else {
     console.log('no slot available');
   }
